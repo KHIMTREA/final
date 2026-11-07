@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: bakong-shop-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shop_db
+    username: shop_user
+    password: shop_password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# JWT Configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:YourSuperSecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForHS256AlgorithmSecurity}
+    expiration-ms: 86400000          # 24 hours
+    refresh-expiration-ms: 604800000 # 7 days
+
+  # Bakong KHQR Configuration
+  # Replace with real credentials from https://api-bakong.nbc.gov.kh
+  bakong:
+    enabled: ${BAKONG_ENABLED:false}           # set true when you have real credentials
+    base-url: https://api-bakong.nbc.gov.kh
+    email: ${BAKONG_EMAIL:your-email@example.com}
+    account-id: ${BAKONG_ACCOUNT_ID:merchant@bank}
+    merchant-name: ${BAKONG_MERCHANT_NAME:Bakong Shop}
+    merchant-city: Phnom Penh
+    currency: KHR
+    # Mock mode generates valid-looking KHQR payloads for development
+    mock-mode: ${BAKONG_MOCK:true}
+
+  cors:
+    allowed-origins: http://localhost:3000,http://127.0.0.1:3000
+
+# Actuator & OpenAPI
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+logging:
+  level:
+    com.shop: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN

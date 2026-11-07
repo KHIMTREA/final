@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shop_postgres
+    environment:
+      POSTGRES_DB: shop_db
+      POSTGRES_USER: shop_user
+      POSTGRES_PASSWORD: shop_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop_user -d shop_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: shop_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@shop.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
