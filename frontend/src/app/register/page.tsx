@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { register } from '@/lib/api';
+import { getApiErrorMessage, register } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 
 export default function RegisterPage() {
@@ -33,8 +33,8 @@ export default function RegisterPage() {
         roles: data.roles || [],
       });
       router.push('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Registration failed'));
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByKhqrMd5(String khqrMd5);
 
+    boolean existsByKhqrMd5(String khqrMd5);
+
     Page<Transaction> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     Page<Transaction> findByStatusOrderByCreatedAtDesc(String status, Pageable pageable);

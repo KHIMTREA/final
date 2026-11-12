@@ -30,6 +30,9 @@ public class ProductService {
     public ProductResponse getById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found"));
+        if (!"ACTIVE".equals(product.getStatus())) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Product not found");
+        }
         return toResponse(product);
     }
 
@@ -72,8 +75,9 @@ public class ProductService {
     public void delete(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found"));
-        productRepository.delete(product);
-        auditService.log("DELETE_PRODUCT", "PRODUCT", id, "Deleted product: " + product.getName());
+        product.setStatus("INACTIVE");
+        productRepository.save(product);
+        auditService.log("DELETE_PRODUCT", "PRODUCT", id, "Archived product: " + product.getName());
     }
 
     private ProductResponse toResponse(Product p) {

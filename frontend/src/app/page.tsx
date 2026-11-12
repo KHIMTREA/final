@@ -1,15 +1,24 @@
 import { ProductGrid } from '@/components/ProductGrid';
 
+export const dynamic = 'force-dynamic';
+
 async function getProducts() {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const base =
+    process.env.INTERNAL_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:8080';
   try {
     const res = await fetch(`${base}/api/v1/products?size=20`, {
       next: { revalidate: 30 },
     });
-    if (!res.ok) return { content: [] };
+    if (!res.ok) {
+      console.error(`Storefront product request failed: ${res.status} ${res.statusText}`);
+      return { content: [], error: `Product service returned ${res.status}. Please try again later.` };
+    }
     return res.json();
-  } catch {
-    return { content: [] };
+  } catch (error) {
+    console.error('Unable to load storefront products:', error);
+    return { content: [], error: 'Unable to load products. Please try again later.' };
   }
 }
 
@@ -29,7 +38,7 @@ export default async function HomePage() {
         </p>
       </section>
 
-      <ProductGrid products={products} />
+      <ProductGrid products={products} error={data.error} />
     </div>
   );
 }

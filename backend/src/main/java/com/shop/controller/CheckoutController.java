@@ -20,13 +20,8 @@ public class CheckoutController {
     }
 
     @GetMapping("/verify/{md5}")
-    public ResponseEntity<PaymentStatusResponse> verify(@PathVariable String md5) {
+    public ResponseEntity<PaymentStatusResponse> verify(@PathVariable("md5") String md5) {
         return ResponseEntity.ok(checkoutService.verifyPayment(md5));
     }
 
-    /** Development only – simulate successful payment */
-    @PostMapping("/simulate-success/{md5}")
-    public ResponseEntity<PaymentStatusResponse> simulateSuccess(@PathVariable String md5) {
-        return ResponseEntity.ok(checkoutService.simulateSuccess(md5));
-    }
 }

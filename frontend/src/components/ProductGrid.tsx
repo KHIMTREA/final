@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/store/cart';
 import { formatKhr } from '@/lib/api';
@@ -16,13 +15,13 @@ interface Product {
   status: string;
 }
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({ products, error }: { products: Product[]; error?: string }) {
   const addItem = useCart((s) => s.addItem);
 
   if (!products.length) {
     return (
       <div className="text-center py-20 text-slate-500">
-        No products available. Make sure the backend is running.
+        {error || 'No products available right now.'}
       </div>
     );
   }

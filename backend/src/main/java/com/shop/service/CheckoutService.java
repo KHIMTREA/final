@@ -119,44 +119,43 @@ public class CheckoutService {
             return toStatusResponse(tx);
         }
 
-        // Poll Bakong
-        String bakongStatus = bakongService.checkTransactionStatus(md5);
+        BakongService.PaymentCheck paymentCheck = bakongService
+                .checkTransactionStatus(md5, tx.getAmountKhr());
 
-        if ("SUCCESS".equals(bakongStatus)) {
+        if ("SUCCESS".equals(paymentCheck.status())) {
             tx.setStatus("SUCCESS");
-            tx.setBakongHash("mock-hash-" + md5.substring(0, 12));
+            tx.setBakongHash(paymentCheck.transactionHash());
+            tx.setFromAccount(paymentCheck.fromAccount());
             Order order = tx.getOrder();
             order.setPaymentStatus("PAID");
             orderRepository.save(order);
             transactionRepository.save(tx);
             auditService.log("PAYMENT_SUCCESS", "TRANSACTION", tx.getId(),
                     "Payment confirmed for order " + order.getId());
-        } else if ("EXPIRED".equals(bakongStatus)) {
-            tx.setStatus("EXPIRED");
+        } else if ("FAILED".equals(paymentCheck.status()) || "EXPIRED".equals(paymentCheck.status())) {
+            tx.setStatus(paymentCheck.status());
             Order order = tx.getOrder();
-            order.setPaymentStatus("EXPIRED");
+            order.setPaymentStatus(paymentCheck.status());
             orderRepository.save(order);
             transactionRepository.save(tx);
         }
 
-        return toStatusResponse(tx);
-    }
-
-    /** Dev helper endpoint */
-    @Transactional
-    public PaymentStatusResponse simulateSuccess(String md5) {
-        bakongService.simulatePaymentSuccess(md5);
-        return verifyPayment(md5);
+        return toStatusResponse(tx, paymentCheck.message());
     }
 
     private PaymentStatusResponse toStatusResponse(Transaction tx) {
+        return toStatusResponse(tx, null);
+    }
+
+    private PaymentStatusResponse toStatusResponse(Transaction tx, String message) {
         return PaymentStatusResponse.builder()
                 .md5(tx.getKhqrMd5())
                 .status(tx.getStatus())
                 .orderId(tx.getOrder().getId())
                 .amountKhr(tx.getAmountKhr())
                 .bakongHash(tx.getBakongHash())
-                .message("SUCCESS".equals(tx.getStatus()) ? "Payment confirmed" : "Current status: " + tx.getStatus())
+                .message(message != null ? message :
+                        "SUCCESS".equals(tx.getStatus()) ? "Payment confirmed" : "Current status: " + tx.getStatus())
                 .build();
     }
 }

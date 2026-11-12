@@ -1,7 +1,10 @@
 import { ProductDetail } from '@/components/ProductDetail';
 
 async function getProduct(id: string) {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  const base =
+    process.env.INTERNAL_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:8080';
   try {
     const res = await fetch(`${base}/api/v1/products/${id}`, {
       next: { revalidate: 30 },

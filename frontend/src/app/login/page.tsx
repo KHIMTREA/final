@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { login } from '@/lib/api';
+import { getApiErrorMessage, login } from '@/lib/api';
 import { useAuth } from '@/store/auth';
 
 export default function LoginPage() {
@@ -29,8 +29,8 @@ export default function LoginPage() {
         roles: data.roles || [],
       });
       router.push('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Login failed'));
     } finally {
       setLoading(false);
     }

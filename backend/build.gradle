@@ -10,6 +10,10 @@ java {
     sourceCompatibility = JavaVersion.VERSION_21
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -41,6 +45,7 @@ dependencies {
     // QR Code generation (ZXing)
     implementation 'com.google.zxing:core:3.5.3'
     implementation 'com.google.zxing:javase:3.5.3'
+    implementation 'kh.gov.nbc.bakong_khqr:sdk-java:1.0.0.16'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'

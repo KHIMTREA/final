@@ -27,11 +27,23 @@ import {
   formatKhr,
 } from '@/lib/api';
 
+type DashboardSummary = {
+  totalRevenueKhr: number;
+  totalOrders: number;
+  lowStockCount: number;
+  registeredCustomers: number;
+  guestCheckouts: number;
+  pendingOrders: number;
+  paidOrders: number;
+  shippedOrders: number;
+  cancelledOrders: number;
+};
+
 export default function AdminDashboard() {
   const router = useRouter();
-  const { isStaff, isAuthenticated } = useAuth();
-  const [summary, setSummary] = useState<any>(null);
-  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const { isStaff, isAdmin, isAuthenticated } = useAuth();
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [topProducts, setTopProducts] = useState<Array<{ name: string; quantitySold: number }>>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -85,8 +97,12 @@ export default function AdminDashboard() {
         <div className="flex gap-2">
           <Link href="/admin/products" className="btn-secondary text-sm">Products</Link>
           <Link href="/admin/orders" className="btn-secondary text-sm">Orders</Link>
-          <Link href="/admin/transactions" className="btn-secondary text-sm">Transactions</Link>
-          <Link href="/admin/users" className="btn-secondary text-sm">Users</Link>
+          {isAdmin() && (
+            <>
+              <Link href="/admin/transactions" className="btn-secondary text-sm">Transactions</Link>
+              <Link href="/admin/users" className="btn-secondary text-sm">Users</Link>
+            </>
+          )}
         </div>
       </div>
 

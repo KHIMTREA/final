@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.shop.service.BakongServiceTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-12T11:45:19.346Z" hostname="pop-os" time="0.619">
+  <properties/>
+  <testcase name="liveModeGeneratesSdkValidatedQrWithMerchantConfiguration()" classname="com.shop.service.BakongServiceTest" time="0.581"/>
+  <testcase name="mockModeGeneratesSdkValidatedQrAndCannotConfirmPayment()" classname="com.shop.service.BakongServiceTest" time="0.017"/>
+  <system-out><![CDATA[Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

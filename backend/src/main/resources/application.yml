@@ -45,20 +45,16 @@ app:
     refresh-expiration-ms: 604800000 # 7 days
 
   # Bakong KHQR Configuration
-  # Replace with real credentials from https://api-bakong.nbc.gov.kh
   bakong:
-    enabled: ${BAKONG_ENABLED:false}           # set true when you have real credentials
     base-url: https://api-bakong.nbc.gov.kh
-    email: ${BAKONG_EMAIL:your-email@example.com}
-    account-id: ${BAKONG_ACCOUNT_ID:merchant@bank}
+    token: ${BAKONG_TOKEN:}
+    account-id: ${BAKONG_ACCOUNT_ID:}
     merchant-name: ${BAKONG_MERCHANT_NAME:Bakong Shop}
     merchant-city: Phnom Penh
-    currency: KHR
-    # Mock mode generates valid-looking KHQR payloads for development
     mock-mode: ${BAKONG_MOCK:true}
 
   cors:
-    allowed-origins: http://localhost:3000,http://127.0.0.1:3000
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
 
 # Actuator & OpenAPI
 management:

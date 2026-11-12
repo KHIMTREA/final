@@ -3,18 +3,33 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
-import { verifyPayment, simulatePaymentSuccess, formatKhr } from '@/lib/api';
+import { getApiErrorMessage, verifyPayment, formatKhr } from '@/lib/api';
+
+type PaymentStatus = {
+  md5: string;
+  status: string;
+  orderId: number;
+  amountKhr: number;
+  bakongHash: string | null;
+  message: string;
+};
+
+type CheckoutQr = {
+  qrImageBase64?: string;
+  amountKhr: number;
+};
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const md5 = searchParams.get('md5') || '';
   const [status, setStatus] = useState<string>('PENDING');
-  const [data, setData] = useState<any>(null);
-  const [qrData, setQrData] = useState<any>(null);
+  const [data, setData] = useState<PaymentStatus | null>(null);
+  const [qrData, setQrData] = useState<CheckoutQr | null>(null);
+  const [verificationError, setVerificationError] = useState('');
 
   useEffect(() => {
     const stored = sessionStorage.getItem('khqr_checkout');
-    if (stored) setQrData(JSON.parse(stored));
+    if (stored) setQrData(JSON.parse(stored) as CheckoutQr);
   }, []);
 
   useEffect(() => {
@@ -24,22 +39,16 @@ function ConfirmationContent() {
         const { data: res } = await verifyPayment(md5);
         setStatus(res.status);
         setData(res);
+        setVerificationError('');
         if (res.status === 'SUCCESS' || res.status === 'EXPIRED' || res.status === 'FAILED') {
           clearInterval(poll);
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        setVerificationError(getApiErrorMessage(error, 'Could not verify payment with Bakong. Retrying…'));
       }
     }, 3000);
     return () => clearInterval(poll);
   }, [md5]);
-
-  const handleSimulate = async () => {
-    await simulatePaymentSuccess(md5);
-    const { data: res } = await verifyPayment(md5);
-    setStatus(res.status);
-    setData(res);
-  };
 
   return (
     <div className="max-w-lg mx-auto text-center">
@@ -60,7 +69,7 @@ function ConfirmationContent() {
         <>
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-red-700 mb-2">Payment {status}</h1>
-          <p className="text-slate-600">Please try again from the cart.</p>
+          <p className="text-slate-600">{data?.message || 'Please try again from the cart.'}</p>
         </>
       ) : (
         <>
@@ -88,11 +97,12 @@ function ConfirmationContent() {
           <p className="text-sm text-slate-500 mb-4">
             Status is checked automatically every 3 seconds…
           </p>
+          {(verificationError || data?.message) && (
+            <p role="status" className={`mb-4 text-sm ${verificationError ? 'text-red-600' : 'text-slate-500'}`}>
+              {verificationError || data?.message}
+            </p>
+          )}
 
-          {/* Dev helper */}
-          <button onClick={handleSimulate} className="btn-secondary text-xs">
-            [Dev] Simulate Successful Payment
-          </button>
         </>
       )}
     </div>

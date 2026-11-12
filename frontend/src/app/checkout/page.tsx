@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/store/cart';
-import { createKhqrCheckout, formatKhr } from '@/lib/api';
+import { createKhqrCheckout, formatKhr, getApiErrorMessage } from '@/lib/api';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -42,8 +42,8 @@ export default function CheckoutPage() {
       sessionStorage.setItem('khqr_checkout', JSON.stringify(data));
       clearCart();
       router.push(`/order-confirmation?md5=${data.khqrMd5}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Checkout failed');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Checkout failed'));
     } finally {
       setLoading(false);
     }
