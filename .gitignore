@@ -3,3 +3,8 @@
 !.env.example
 .vercel
 .env*
+
+# Java and Gradle build output
+.gradle/
+build/
+backend/bin/
